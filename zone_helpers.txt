@@ -1,0 +1,32 @@
+    def _identify_hc_zones(self):
+        """Identify hydrocarbon zones for highlighting."""
+        zones = []
+        if 'Resistivity Rt (OHM.M)' not in self.data.columns:
+            return zones
+        
+        rt = self.data['Resistivity Rt (OHM.M)'].values
+        rx = self.data['Resistivity Rx (OHM.M)'].values
+        depth = self.depth
+        
+        hc_indicator = rt > rx
+        in_zone = False
+        zone_start = None
+        
+        for i in range(len(hc_indicator)):
+            if hc_indicator[i] and not in_zone:
+                zone_start = depth[i]
+                in_zone = True
+            elif not hc_indicator[i] and in_zone:
+                zones.append((zone_start, depth[i-1]))
+                in_zone = False
+        
+        if in_zone:
+            zones.append((zone_start, depth[-1]))
+        
+        return zones
+    
+    def _add_zone_highlighting(self, ax):
+        """Add colored highlighting for hydrocarbon zones."""
+        for zone_start, zone_end in self.hc_zones:
+            ax.axhspan(zone_start, zone_end, alpha=0.15, color=COLOR_OIL, 
+                      linewidth=0, zorder=0)

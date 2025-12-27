@@ -1,0 +1,31 @@
+    def _format_interpretation_text(self, summary):
+        """Format interpretation summary with colors and styling."""
+        lines = summary.split('\\n')
+        
+        for line in lines:
+            if line.startswith('===='):
+                # Section separators
+                self.summary_text.insert(tk.END, line + '\\n', "section")
+            elif 'PETROPHYSICAL INTERPRETATION SUMMARY' in line:
+                self.summary_text.insert(tk.END, line + '\\n', "title")
+            elif line.strip().endswith(':') and line.strip().isupper():
+                # Section headers (all caps ending with colon)
+                self.summary_text.insert(tk.END, line + '\\n', "section")
+            elif 'Zone ' in line and ':' in line:
+                # Zone identifiers
+                self.summary_text.insert(tk.END, line + '\\n', "important")
+            elif '✓' in line or 'POTENTIAL PAY' in line:
+                # Success indicators
+                self.summary_text.insert(tk.END, line + '\\n', "success")
+            elif '!' in line or 'NO SIGNIFICANT' in line or 'WARNING' in line:
+                # Warnings
+                self.summary_text.insert(tk.END, line + '\\n', "warning")
+            elif line.strip().startswith('→'):
+                # Recommendations
+                self.summary_text.insert(tk.END, line + '\\n', "important")
+            elif any(key in line for key in ['Average', 'Maximum', 'Thickness', 'Depth Range', 'Identified']):
+                # Important values
+                self.summary_text.insert(tk.END, line + '\\n', "subsection")
+            else:
+                # Normal text
+                self.summary_text.insert(tk.END, line + '\\n', "normal")
